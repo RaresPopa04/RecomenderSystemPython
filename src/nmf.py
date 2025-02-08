@@ -83,13 +83,13 @@ def cross_validation(V, nmf, n_components, k=5):
 
         V_hat = W @ H
 
-        error_curent_fold = 0
+        error_current_fold = 0
         # Calculate the error for the current fold using the test indices
         for (row, col) in test_indices:
-            error_curent_fold += (V[row, col] - V_hat[row, col]) ** 2
+            error_current_fold += (V[row, col] - V_hat[row, col]) ** 2
 
         # Average the error by the number of test points in the fold
-        fold_errors.append(error_curent_fold / len(test_indices))
+        fold_errors.append(error_current_fold / len(test_indices))
 
     return np.mean(fold_errors)
 
@@ -122,7 +122,7 @@ def calculate_prediction_matrix(data_matrix):
     # Find the optimal number of components using the elbow method
     optimal_components = list_components[np.argmin(errors)]
     for i in range(1, len(errors)):
-        if errors[i] < errors[i - 1] * 0.95:  # If the error reduction is less than 5%
+        if errors[i] > errors[i - 1] * 0.98:  # If the error reduction is less than 2%
             optimal_components = list_components[i - 1]
             break
     print(f"Optimal number of components: {optimal_components}")

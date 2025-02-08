@@ -1,4 +1,4 @@
-from wsgiref.util import application_uri
+import os
 
 from flask import Flask, request, jsonify
 
@@ -15,6 +15,7 @@ movie_genres = None
 movie_index_map = None
 user_index_map = None
 movies_df = None
+
 
 def load_model_artifacts():
     """
@@ -40,9 +41,11 @@ def recommend_collaborative():
     if user_id not in user_index_map:
         return jsonify({"recommendations": [], "message": "User ID not found."})
 
-    recommended_movies = recommend_movies(user_id, prediction_matrix, user_index_map, movie_index_map, n_recommendations)
+    recommended_movies = recommend_movies(user_id, prediction_matrix, user_index_map, movie_index_map,
+                                          n_recommendations)
 
     return jsonify({"recommendations": recommended_movies})
+
 
 @app.route('/recommend/content', methods=['GET'])
 def recommend_content():
@@ -55,16 +58,20 @@ def recommend_content():
     if user_id not in user_index_map:
         return jsonify({"recommendations": [], "message": "User ID not found."})
 
-    recommended_movies = recommend_for_user(user_id, data_matrix, movie_genres, movies_df, movie_index_map, user_index_map, n_recommendations)
+    recommended_movies = recommend_for_user(user_id, data_matrix, movie_genres, movies_df, movie_index_map,
+                                            user_index_map, n_recommendations)
 
     return jsonify(recommended_movies)
 
+
 def main():
+    print(prediction_matrix)
     app.run(port=5000, debug=True)
 
+
 if __name__ == "__main__":
-    load_model_artifacts()
+    # This is needed because Flask restarts when it detects changes in code
+    # So we check if the script is started by main or the Flask server
+    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+        load_model_artifacts()
     main()
-
-
-
